@@ -1,0 +1,58 @@
+// This is the Prisma schema file for the GitaGyan project
+
+// Importing required modules
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shloka {
+  id        Int     @id @default(autoincrement())
+  text      String  
+  sectionId  Int
+  section    Section @relation(fields: [sectionId], references: [id])
+}
+
+model VideoLesson {
+  id        Int     @id @default(autoincrement())
+  title     String  
+  url       String  
+  sectionId  Int
+  section    Section @relation(fields: [sectionId], references: [id])
+}
+
+model Section {
+  id             Int          @id @default(autoincrement())
+  title          String       
+  shlokas       Shloka[]     
+  videoLessons   VideoLesson[]
+  userId        Int
+  user          User         @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id             Int          @id @default(autoincrement())
+  username       String       @unique
+  email          String       @unique
+  sections       Section[]    
+  pricing        Pricing?
+}
+
+model Pricing {
+  id             Int          @id @default(autoincrement())
+  userId        Int
+  amount        Float        
+  purchase      Purchase[]   
+  user          User         @relation(fields: [userId], references: [id])
+}
+
+model Purchase {
+  id             Int          @id @default(autoincrement())
+  pricingId     Int
+  date          DateTime     @default(now())
+  pricing       Pricing       @relation(fields: [pricingId], references: [id])
+}
